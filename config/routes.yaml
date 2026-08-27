@@ -1,0 +1,33 @@
+mcp_oauth_as_metadata:
+    path: /.well-known/oauth-authorization-server
+    controller: Omouren\McpOauthBundle\Controller\AuthorizationServerMetadataController
+    methods: [GET]
+
+mcp_oauth_as_metadata_path:
+    path: /.well-known/oauth-authorization-server/{path}
+    controller: Omouren\McpOauthBundle\Controller\AuthorizationServerMetadataController
+    methods: [GET]
+    requirements:
+        path: .+
+
+mcp_oauth_prm:
+    path: /.well-known/oauth-protected-resource
+    controller: Omouren\McpOauthBundle\Controller\ProtectedResourceMetadataController
+    methods: [GET]
+
+mcp_oauth_prm_path:
+    path: /.well-known/oauth-protected-resource/{path}
+    controller: Omouren\McpOauthBundle\Controller\ProtectedResourceMetadataController
+    methods: [GET]
+    requirements:
+        path: .+
+
+mcp_oauth_register:
+    path: '%mcp_oauth.authorization_prefix%/register'
+    controller: Omouren\McpOauthBundle\Controller\DynamicClientRegistrationController
+    methods: [POST]
+
+mcp_oauth_consent:
+    path: '%mcp_oauth.authorization_prefix%/consent'
+    controller: Omouren\McpOauthBundle\Controller\ConsentController
+    methods: [GET, POST]

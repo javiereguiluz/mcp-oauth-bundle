@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authorize application</title>
+</head>
+<body>
+    <h1>Authorize {{ client_name }}</h1>
+    {% if redirect_host %}
+        <p>Redirect URI host: <strong>{{ redirect_host }}</strong></p>
+    {% endif %}
+    <p>This client is requesting access to your MCP server.</p>
+    <form method="post">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
+        <button type="submit">Allow</button>
+    </form>
+</body>
+</html>

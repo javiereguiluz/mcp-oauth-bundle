@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
+
+return static function (DefinitionConfigurator $definition): void {
+    $definition
+        ->rootNode()
+            ->children()
+                ->scalarNode('authorization_prefix')
+                    ->defaultValue('/oauth2')
+                    ->cannotBeEmpty()
+                ->end()
+                ->arrayNode('scopes')
+                    ->scalarPrototype()->end()
+                    ->defaultValue(['mcp'])
+                    ->info('Advertised scopes_supported, and the scopes that mark authorize/token as MCP when RFC 8707 resource is absent.')
+                ->end()
+                ->scalarNode('login_route')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->info('Symfony route name for the application login page, not a URL.')
+                ->end()
+                ->enumNode('consent')
+                    ->values(['page', 'auto'])
+                    ->defaultValue('page')
+                ->end()
+                ->arrayNode('cimd')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                        ->arrayNode('trusted_domains')
+                            ->scalarPrototype()->end()
+                            ->defaultValue(['claude.ai', 'vscode.dev', 'cursor.com'])
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('dcr')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultTrue()->end()
+                    ->end()
+                ->end()
+                ->booleanNode('resource_indicators')->defaultTrue()->end()
+                ->booleanNode('issuer_identification')->defaultTrue()->end()
+                ->scalarNode('public_base_url')
+                    ->defaultNull()
+                    ->info('Absolute origin used as OAuth issuer and MCP resource base. Defaults to the current request.')
+                ->end()
+            ->end()
+        ->end()
+    ;
+};
