@@ -93,7 +93,7 @@ final class IssuerParameterListenerTest extends TestCase
     private function listener(bool $issuerIdentification = true): IssuerParameterListener
     {
         $settings = new McpOauthSettings(
-            resourcePath: '/_mcp',
+            resourcePaths: ['/_mcp'],
             authorizationPrefix: '/oauth2',
             scopes: ['mcp'],
             loginRoute: 'app_login',

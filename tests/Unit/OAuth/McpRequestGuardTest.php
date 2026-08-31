@@ -79,13 +79,35 @@ final class McpRequestGuardTest extends TestCase
         self::assertFalse($guard->isMcpAuthorize(Request::create('https://mcp.example.test/oauth2/authorize?scope=mcp')));
     }
 
+    public function testResourcePathMatchesAnyConfiguredHttpPath(): void
+    {
+        $guard = $this->guard(resourcePaths: ['/_mcp', '/mcp/editors']);
+
+        self::assertTrue($guard->isResourcePath(Request::create('https://mcp.example.test/_mcp')));
+        self::assertTrue($guard->isResourcePath(Request::create('https://mcp.example.test/mcp/editors')));
+        self::assertFalse($guard->isResourcePath(Request::create('https://mcp.example.test/mcp/public')));
+    }
+
+    public function testMcpAuthorizeAcceptsAnyConfiguredResourceUri(): void
+    {
+        $guard = $this->guard(resourcePaths: ['/_mcp', '/mcp/editors']);
+
+        self::assertTrue($guard->isMcpAuthorize(Request::create(
+            'https://mcp.example.test/oauth2/authorize?resource=https://mcp.example.test/mcp/editors',
+        )));
+        self::assertFalse($guard->isMcpAuthorize(Request::create(
+            'https://mcp.example.test/oauth2/authorize?resource=https://mcp.example.test/mcp/other',
+        )));
+    }
+
     /**
      * @param list<string> $scopes
+     * @param list<string> $resourcePaths
      */
-    private function guard(array $scopes = ['mcp']): McpRequestGuard
+    private function guard(array $scopes = ['mcp'], array $resourcePaths = ['/_mcp']): McpRequestGuard
     {
         $settings = new McpOauthSettings(
-            resourcePath: '/_mcp',
+            resourcePaths: $resourcePaths,
             authorizationPrefix: '/oauth2',
             scopes: $scopes,
             loginRoute: 'app_login',

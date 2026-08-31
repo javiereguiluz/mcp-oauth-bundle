@@ -58,6 +58,8 @@ final class MetadataEndpointTest extends WebTestCase
         $client->request('GET', '/.well-known/oauth-protected-resource/_mcp');
 
         self::assertResponseIsSuccessful();
+        $payload = json_decode($client->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        self::assertSame('https://mcp.example.test/_mcp', $payload['resource']);
     }
 
     public function testPathAwareAuthorizationServerMetadata(): void

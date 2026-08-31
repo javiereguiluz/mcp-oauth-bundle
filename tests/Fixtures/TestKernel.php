@@ -58,8 +58,13 @@ final class TestKernel extends Kernel
             'default_path' => '%kernel.project_dir%/templates',
         ]);
         $container->extension('mcp', [
-            'client_transports' => ['http' => true],
-            'http' => ['path' => '/_mcp'],
+            'servers' => [
+                'default' => [
+                    'transports' => ['http' => true],
+                    'http' => ['path' => '/_mcp'],
+                    'registry' => '*',
+                ],
+            ],
         ]);
         $container->extension('mcp_oauth', [
             'login_route' => 'app_login',

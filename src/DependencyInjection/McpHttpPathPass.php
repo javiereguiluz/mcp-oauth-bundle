@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Extension\ConfigurationExtensionInterface;
 
 /**
- * Copies mcp-bundle `mcp.http.path` into this bundle as the protected MCP resource path.
+ * Copies mcp-bundle HTTP server paths into this bundle as the protected MCP resource paths.
  *
  * @see https://github.com/symfony/mcp-bundle
  */
@@ -26,26 +26,42 @@ final class McpHttpPathPass implements CompilerPassInterface
             return;
         }
 
-        $path = $this->httpPath($container);
+        $paths = self::httpPathsFromConfig($this->mcpConfig($container));
 
-        $container->setParameter('mcp_oauth.resource_path', $path);
-        $container->getDefinition(McpOauthSettings::class)->setArgument('$resourcePath', $path);
+        $container->getDefinition(McpOauthSettings::class)->setArgument('$resourcePaths', $paths);
     }
 
-    private function httpPath(ContainerBuilder $container): string
+    /**
+     * @param array<string, mixed> $config Processed `mcp` extension config
+     *
+     * @return list<string>
+     */
+    public static function httpPathsFromConfig(array $config): array
     {
-        $config = $this->mcpConfig($container);
-
-        if (true !== ($config['client_transports']['http'] ?? false)) {
-            throw new LogicException('MCP OAuth protects the MCP HTTP endpoint, so "mcp.client_transports.http" must be enabled.');
+        $servers = $config['servers'] ?? [];
+        if (!\is_array($servers) || [] === $servers) {
+            throw new LogicException('MCP OAuth protects MCP HTTP endpoints, so at least one "mcp.servers" entry with HTTP transport must be configured.');
         }
 
-        $path = $config['http']['path'] ?? null;
-        if (!\is_string($path) || '' === $path) {
-            throw new LogicException('Unable to read "mcp.http.path" from symfony/mcp-bundle.');
+        $paths = [];
+        foreach ($servers as $name => $server) {
+            if (!\is_array($server) || true !== ($server['transports']['http'] ?? false)) {
+                continue;
+            }
+
+            $path = $server['http']['path'] ?? '/mcp/'.$name;
+            if (!\is_string($path) || '' === $path) {
+                throw new LogicException(\sprintf('Unable to read "mcp.servers.%s.http.path" from symfony/mcp-bundle.', (string) $name));
+            }
+
+            $paths[] = rtrim($path, '/') ?: '/';
         }
 
-        return rtrim($path, '/') ?: '/';
+        if ([] === $paths) {
+            throw new LogicException('MCP OAuth protects the MCP HTTP endpoint, so at least one server must enable "transports.http".');
+        }
+
+        return array_values(array_unique($paths));
     }
 
     /**
@@ -55,10 +71,9 @@ final class McpHttpPathPass implements CompilerPassInterface
     {
         $extension = $container->hasExtension(self::EXTENSION) ? $container->getExtension(self::EXTENSION) : null;
         if (!$extension instanceof ConfigurationExtensionInterface) {
-            throw new LogicException('MCP OAuth reads the MCP HTTP path from symfony/mcp-bundle, which is not registered.');
+            throw new LogicException('MCP OAuth reads MCP HTTP paths from symfony/mcp-bundle, which is not registered.');
         }
 
-        
         $configs = $container->getParameterBag()->resolveValue($container->getExtensionConfig(self::EXTENSION));
         $configuration = $extension->getConfiguration($configs, $container);
         if (null === $configuration) {

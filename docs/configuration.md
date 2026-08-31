@@ -50,6 +50,8 @@ mcp_oauth:
 
 `authorization_prefix` must match the prefix you use to import League routes. `scopes` must stay in sync with League `scopes.available`. Behind a reverse proxy, set `public_base_url` to the public origin (and Symfony `trusted_proxies`).
 
+HTTP paths come from mcp-bundle `mcp.servers.*.http.path` (not from this bundle). Every HTTP server is a protected resource. The firewall `pattern` is written in the app (`^/_mcp`, or a regex covering several paths).
+
 ## DCR client authentication
 
 The deprecated DCR endpoint accepts both public and confidential clients:

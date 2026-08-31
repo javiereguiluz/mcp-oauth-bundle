@@ -26,9 +26,10 @@ final class McpOauthBundle extends AbstractBundle
         $prefix = rtrim((string) $config['authorization_prefix'], '/');
         $builder->setParameter('mcp_oauth.authorization_prefix', $prefix);
 
-        // $resourcePath comes from mcp.http.path, resolved by McpHttpPathPass.
+        // $resourcePaths comes from mcp.servers.*.http.path, resolved by McpHttpPathPass.
         $builder->register(McpOauthSettings::class)
             ->setArguments([
+                '$resourcePaths' => [],
                 '$authorizationPrefix' => $prefix,
                 '$scopes' => $config['scopes'],
                 '$loginRoute' => $config['login_route'],

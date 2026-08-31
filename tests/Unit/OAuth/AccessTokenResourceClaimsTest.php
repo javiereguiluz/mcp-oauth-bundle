@@ -66,7 +66,7 @@ final class AccessTokenResourceClaimsTest extends TestCase
     private function factory(RequestStack $stack, bool $resourceIndicators = true): AccessTokenResourceClaims
     {
         $settings = new McpOauthSettings(
-            '/_mcp',
+            ['/_mcp'],
             '/oauth2',
             ['mcp'],
             'app_login',

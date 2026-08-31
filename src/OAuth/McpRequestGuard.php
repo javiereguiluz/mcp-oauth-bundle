@@ -24,7 +24,13 @@ final readonly class McpRequestGuard
 
     public function isResourcePath(Request $request): bool
     {
-        return $this->pathEquals($request->getPathInfo(), $this->settings->resourcePath);
+        foreach ($this->settings->resourcePaths as $path) {
+            if ($this->pathEquals($request->getPathInfo(), $path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function isAuthorizePath(Request $request): bool
@@ -57,10 +63,13 @@ final readonly class McpRequestGuard
     {
         $resource = $this->resourceParameter($request);
         if (null !== $resource) {
-            return $this->canonicalResourceUri->matches(
-                $this->issuerResolver->resource($request),
-                $resource,
-            );
+            foreach ($this->issuerResolver->resources($request) as $expected) {
+                if ($this->canonicalResourceUri->matches($expected, $resource)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         return $this->scopesIncludeMcp($scopes) || $this->scopesIncludeMcp($this->requestedScopes($request));

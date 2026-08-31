@@ -32,7 +32,38 @@ final readonly class IssuerResolver
 
     public function resource(Request $request): string
     {
-        return $this->canonicalResourceUri->combine($this->issuer($request), $this->settings->resourcePath);
+        return $this->canonicalResourceUri->combine($this->issuer($request), $this->resourcePath($request));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function resources(Request $request): array
+    {
+        $issuer = $this->issuer($request);
+
+        return array_values(array_map(
+            fn (string $path): string => $this->canonicalResourceUri->combine($issuer, $path),
+            $this->settings->resourcePaths,
+        ));
+    }
+
+    public function resourcePath(Request $request): string
+    {
+        $fromRequest = $this->matchResourcePath($request->getPathInfo());
+        if (null !== $fromRequest) {
+            return $fromRequest;
+        }
+
+        $wellKnown = $request->attributes->get('path');
+        if (\is_string($wellKnown) && '' !== $wellKnown) {
+            $fromWellKnown = $this->matchResourcePath('/'.ltrim($wellKnown, '/'));
+            if (null !== $fromWellKnown) {
+                return $fromWellKnown;
+            }
+        }
+
+        return $this->settings->resourcePaths[0];
     }
 
     public function authorizationServerMetadataUrl(Request $request): string
@@ -42,7 +73,7 @@ final readonly class IssuerResolver
 
     public function protectedResourceMetadataUrl(Request $request): string
     {
-        $suffix = trim($this->settings->resourcePath, '/');
+        $suffix = trim($this->resourcePath($request), '/');
         $url = $this->issuer($request).'/.well-known/oauth-protected-resource';
         if ('' !== $suffix) {
             $url .= '/'.$suffix;
@@ -64,5 +95,21 @@ final readonly class IssuerResolver
     public function registrationUrl(Request $request): string
     {
         return $this->issuer($request).rtrim($this->settings->authorizationPrefix, '/').'/register';
+    }
+
+    private function matchResourcePath(string $pathInfo): ?string
+    {
+        $normalized = rtrim($pathInfo, '/');
+        $normalized = '' === $normalized ? '/' : $normalized;
+
+        foreach ($this->settings->resourcePaths as $path) {
+            $expected = rtrim($path, '/');
+            $expected = '' === $expected ? '/' : $expected;
+            if ($normalized === $expected) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 }

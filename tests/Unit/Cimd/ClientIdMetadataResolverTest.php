@@ -124,7 +124,7 @@ final class ClientIdMetadataResolverTest extends TestCase
     private function settings(): McpOauthSettings
     {
         return new McpOauthSettings(
-            resourcePath: '/_mcp',
+            resourcePaths: ['/_mcp'],
             authorizationPrefix: '/oauth2',
             scopes: ['mcp'],
             loginRoute: 'app_login',

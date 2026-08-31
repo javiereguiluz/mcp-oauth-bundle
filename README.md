@@ -36,15 +36,18 @@ oauth2:
 
 That import covers well-known metadata, DCR `/register`, and consent. League `/authorize` and `/token` come from the `oauth2` import. If the prefix does not match `authorization_prefix`, RFC 8414 metadata advertises the wrong URLs.
 
-Enable the MCP HTTP endpoint (`mcp.http.path`). That is the resource this bundle protects.
+Enable at least one MCP HTTP server. Those HTTP paths are the resources this bundle protects.
 
 ```yaml
 # config/packages/mcp.yaml
 mcp:
-    client_transports:
-        http: true
-    http:
-        path: /_mcp   # optional, mcp-bundle default
+    servers:
+        default:
+            transports:
+                http: true
+            http:
+                path: /_mcp   # keep this explicit: mcp-bundle 0.13 defaults to /mcp/<name>
+            registry: '*'
 ```
 
 Point this bundle at your existing login (a Symfony route name, not a URL). `consent: auto` skips the consent page after login; the default `page` renders one at `{authorization_prefix}/consent`.
@@ -97,7 +100,7 @@ Protect the MCP endpoint and leave token, register, and well-known public:
 security:
     firewalls:
         mcp:
-            pattern: '^%mcp_oauth.resource_path%'
+            pattern: '^/_mcp'
             stateless: true
             oauth2: true
         oauth2_public:
@@ -108,7 +111,7 @@ security:
             # your session login (form_login, access_token, …)
 
     access_control:
-        - { path: '^%mcp_oauth.resource_path%', roles: IS_AUTHENTICATED_FULLY }
+        - { path: '^/_mcp', roles: IS_AUTHENTICATED_FULLY }
         - { path: '^%mcp_oauth.authorization_prefix%/authorize', roles: PUBLIC_ACCESS }
         - { path: '^%mcp_oauth.authorization_prefix%/consent', roles: IS_AUTHENTICATED_REMEMBERED }
 ```
@@ -119,7 +122,7 @@ Behind a reverse proxy, set `mcp_oauth.public_base_url` to the public origin (an
 
 Kernel listeners are registered globally, but they return immediately unless the request is MCP:
 
-- exact `mcp.http.path` (default `/_mcp`; trailing slash allowed, not `/_mcp-admin`)
+- exact `mcp.servers.*.http.path` (trailing slash allowed, not `/_mcp-admin`)
 - exact `{authorization_prefix}/authorize` or `/token`, and the request targets MCP: RFC 8707 `resource` is the canonical MCP URI, or (if `resource` is absent) a `mcp_oauth.scopes` value is present
 
 WWW-Authenticate and audience checks apply only to the MCP HTTP endpoint. Login redirect, `iss`, CIMD rewrite, and consent apply only to MCP authorize/token. Extra JWT `resource`/`aud` claims are added only when issuing an MCP token.
