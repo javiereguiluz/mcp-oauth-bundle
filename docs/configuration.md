@@ -9,6 +9,7 @@ Install, League wiring, and `security.yaml` live in the [Getting started](../REA
 | `authorization_prefix` | string | `/oauth2` | no |
 | `scopes` | string[] | `[mcp]` | no |
 | `login_route` | string | | yes |
+| `redirect_query_param` | string | `_target_path` | no |
 | `consent` | `page` or `auto` | `page` | no |
 | `cimd.enabled` | bool | `true` | no |
 | `cimd.trusted_domains` | string[] | claude.ai, vscode.dev, cursor.com | no |
@@ -28,6 +29,10 @@ mcp_oauth:
 
     # Required. Symfony route name of your login page, not a URL.
     login_route: app_login
+
+    # Query parameter on the login URL that receives the MCP authorize request URI.
+    # Keep _target_path for Symfony form_login; change it if your login reads another name.
+    redirect_query_param: _target_path
 
     # page = Twig consent; auto = approve after login.
     consent: page

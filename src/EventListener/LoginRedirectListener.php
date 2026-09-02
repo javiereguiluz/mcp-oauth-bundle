@@ -52,6 +52,6 @@ final readonly class LoginRedirectListener
         }
         $separator = str_contains($login, '?') ? '&' : '?';
 
-        $event->setResponse(new RedirectResponse($login.$separator.'_target_path='.rawurlencode($target)));
+        $event->setResponse(new RedirectResponse($login.$separator.rawurlencode($this->settings->redirectQueryParam).'='.rawurlencode($target)));
     }
 }

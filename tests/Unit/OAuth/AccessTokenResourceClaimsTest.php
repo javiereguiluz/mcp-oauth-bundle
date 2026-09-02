@@ -70,6 +70,7 @@ final class AccessTokenResourceClaimsTest extends TestCase
             '/oauth2',
             ['mcp'],
             'app_login',
+            '_target_path',
             'page',
             true,
             ['claude.ai'],

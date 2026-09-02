@@ -33,6 +33,7 @@ final class McpOauthBundle extends AbstractBundle
                 '$authorizationPrefix' => $prefix,
                 '$scopes' => $config['scopes'],
                 '$loginRoute' => $config['login_route'],
+                '$redirectQueryParam' => $config['redirect_query_param'],
                 '$consent' => $config['consent'],
                 '$cimdEnabled' => $config['cimd']['enabled'],
                 '$trustedDomains' => $config['cimd']['trusted_domains'],

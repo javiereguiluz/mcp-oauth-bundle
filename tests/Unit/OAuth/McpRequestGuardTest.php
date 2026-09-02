@@ -111,6 +111,7 @@ final class McpRequestGuardTest extends TestCase
             authorizationPrefix: '/oauth2',
             scopes: $scopes,
             loginRoute: 'app_login',
+            redirectQueryParam: '_target_path',
             consent: 'auto',
             cimdEnabled: true,
             trustedDomains: [],

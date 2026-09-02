@@ -16,6 +16,7 @@ final readonly class McpOauthSettings
         public string $authorizationPrefix,
         public array $scopes,
         public string $loginRoute,
+        public string $redirectQueryParam,
         public string $consent,
         public bool $cimdEnabled,
         public array $trustedDomains,

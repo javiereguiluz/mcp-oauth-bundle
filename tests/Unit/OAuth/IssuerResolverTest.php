@@ -55,6 +55,7 @@ final class IssuerResolverTest extends TestCase
             authorizationPrefix: '/oauth2',
             scopes: ['mcp'],
             loginRoute: 'app_login',
+            redirectQueryParam: '_target_path',
             consent: 'auto',
             cimdEnabled: true,
             trustedDomains: [],
